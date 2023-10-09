@@ -1,16 +1,19 @@
 import autogen
 import openai
-import os
+import json
 
-openai.apikey = os.getenv("OPENAI_API_KEY")
+# load OpenAI API key from config file
+with open("OAI_CONFIG_LIST.json", "r") as f:
+    config = json.load(f)
+openai.api_key = config["api_key"]
 
+# this function loads a list of configurations from an environment variable or a json file
 config_list = autogen.config_list_from_json(
     "OAI_CONFIG_LIST", 
     filter_dict={
         "model": ["gpt-4", "gpt-4-0314", "gpt4", "gpt-4-32k", "gpt-4-32k-0314", "gpt-4-32k-v0314"],
     },
 )
-
 
 # Assistant AGENT comes with a default system message. You can overwrite it by specifying the "system_message" parameter as below.
 planner = autogen.AssistantAgent(
@@ -73,5 +76,5 @@ user_proxy = autogen.UserProxyAgent(
 # the assistant receives a message from the user, which contains the task description
 user_proxy.initiate_chat(
     assistant,
-    message="""Suggest an improvement to the most popular repo in echohive42 github. use subprocess for pip installs""", # add "use subprocess for pip install" to the end of the message if you are getting powershell error
+    message="""Suggest an improvement to the most popular repo in legendkong github. use subprocess for pip installs""", # add "use subprocess for pip install" to the end of the message if you are getting powershell error
 )
