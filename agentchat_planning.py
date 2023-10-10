@@ -29,6 +29,7 @@ planner_user = autogen.UserProxyAgent(
     human_input_mode="NEVER",
 )
 
+# serves as a bridge for communicating with planner
 def ask_planner(message):
     planner_user.initiate_chat(planner, message=message)
     # return the last message received from the planner
