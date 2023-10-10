@@ -72,6 +72,64 @@ def ask_btp_expert(message):
     # return the last message received from the btp expert
     return sap_solutions_architect_user.last_message()["content"]
 
+# create an AssistantAgent instance named "assistant"
+assistant = autogen.AssistantAgent(
+    name="assistant",
+    llm_config={
+        "temperature": 0,
+        "request_timeout": 600,
+        "seed": 42,
+        "model": "gpt-4",
+        "config_list": autogen.config_list_openai_aoai(exclude="aoai"),
+        "functions": [
+            {
+                "name": "ask_solutions_architect",
+                "description": (
+                    "Engage the Solutions Architect to: "
+                    "1. Precisely list the steps taken to address the problem statement. "
+                    "2. Verify the execution result of the plan and potentially suggest an alternative solution, "
+                    "along with its pros and cons."
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "description": (
+                                "Question to ask the Solutions Architect. Ensure the question includes enough context, "
+                                "such as code and execution results. The architect is unaware of previous conversations "
+                                "unless shared."
+                            ),
+                        },
+                    },
+                    "required": ["message"],
+                },
+            },
+            {
+                "name": "ask_btp_expert",
+                "description": (
+                    "Engage the BTP Expert to: "
+                    "1. Provide specialized knowledge and recommendations regarding SAP BTP services. "
+                    "2. Engage in discussions with the Solutions Architect and Customer to provide insightful advice."
+                ),
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "description": (
+                                "Question to ask the BTP Expert. Ensure the question includes enough context for a "
+                                "meaningful response."
+                            ),
+                        },
+                    },
+                    "required": ["message"],
+                },
+            },
+        ],
+    }
+)
+
 # Agent: a customer of SAP
 customer = autogen.UserProxyAgent(
     name="Customer",
