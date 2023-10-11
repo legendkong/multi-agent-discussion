@@ -23,8 +23,13 @@ gpt4_config = {
 
 user_proxy = autogen.UserProxyAgent(
    name="Customer",
-   system_message="A human customer. Interact with the planner to discuss the plan. Plan execution needs to be approved by this customer.",
-   code_execution_config=False,
+   human_input_mode="TERMINATE",
+   max_consecutive_auto_reply=10,
+   system_message="A human customer. Interact with the planner to discuss the plan. Plan execution needs to be approved by this customer. Reply TERMINATE if the task has been solved at full satisfaction. Otherwise, reply CONTINUE, or the reason why the task is not solved yet.",
+   code_execution_config={"work_dir": "web"},
+   llm_config= gpt4_config,
+   is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("TERMINATE"),
+
 )
 
 
@@ -44,17 +49,14 @@ sap_btp_expert = autogen.AssistantAgent(
 
 junior_consultant = autogen.AssistantAgent(
     name="Junior_Consultant",
-    system_message='''Planner. Suggest a plan. Revise the plan based on feedback from customer and critic, until customer approval.
-The plan may involve a sap solution architect who can write code and a sap btp expert who doesn't write code.
-Explain the plan first. Be clear which step is performed by an sap solution architect, and which step is performed by a sap btp expert.
-''',
     llm_config=gpt4_config,
+     system_message="You are the planner. Suggest a plan. Revise the plan based on feedback from customer and senior consultant, until customer approval. The plan may involve a sap solution architect who can write code and a sap btp expert who doesn't write code. Explain the plan first. Be clear which step is performed by the sap solution architect, and which step is performed by the sap btp expert.",
 )
 
 
 senior_consultant = autogen.AssistantAgent(
     name="Senior_Consultant",
-    system_message="Critic. Double check plan, claims, code, and suggestions from other agents and provide feedback. Check whether the plan includes adding verifiable info such as source URL.",
+    system_message="You are the critic. Double check plan, claims, code, and suggestions from other agents and provide feedback and check whether the plan is clear and complete. You can also suggest a plan if you think the plan is not clear or complete.",
     llm_config=gpt4_config,
 )
 
